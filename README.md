@@ -1,8 +1,6 @@
 # ColaTtb
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cola_ttb`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This gem scrapes the TTB COLA Registry (https://www.ttbonline.gov/colasonline/).  
 
 ## Installation
 
@@ -24,6 +22,13 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
+## TODO
+1. Complete basic file setup
+2. Build scraper
+  * Build search and send request
+  * Download search CSV
+3.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -38,4 +43,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
