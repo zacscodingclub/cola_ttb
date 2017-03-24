@@ -1,4 +1,4 @@
-# ColaTtb
+# ColaTTB
 
 This gem scrapes the TTB COLA Registry (https://www.ttbonline.gov/colasonline/).  
 

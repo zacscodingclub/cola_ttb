@@ -1,7 +1,7 @@
 require "csv"
 
 
-module ColaTtb
+module ColaTTB
   class CSVHandler
     def self.parse(file)
 

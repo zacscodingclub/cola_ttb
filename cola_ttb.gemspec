@@ -5,7 +5,7 @@ require 'cola_ttb/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "cola_ttb"
-  spec.version       = ColaTtb::VERSION
+  spec.version       = ColaTTB::VERSION
   spec.authors       = ["zacscodingclub"]
   spec.email         = ["zbaston@gmail.com"]
 

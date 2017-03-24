@@ -2,7 +2,7 @@ require "open-uri"
 require "mechanize"
 require "nokogiri"
 
-module ColaTtb
+module ColaTTB
   class Scraper
     SEARCH_URL         = "https://www.ttbonline.gov/colasonline/publicSearchColasBasic.do"
     BEVERAGE_PRINT_URL = "https://www.ttbonline.gov/colasonline/viewColaDetails.do?action=publicFormDisplay&ttbid="
