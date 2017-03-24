@@ -25,8 +25,11 @@ TODO: Write usage instructions here
 ## TODO
 1. Complete basic file setup
 2. Build scraper
-  * Build search and send request
+  * Build search and send request (https://www.ttbonline.gov/colasonline/publicSearchColasBasic.do)
   * Download search CSV
+  * Parse CSV
+  * Scrape each beverage information (https://www.ttbonline.gov/colasonline/viewColaDetails.do?action=publicFormDisplay&ttbid=17032001000566)
+  *
 3.
 
 ## Development
@@ -43,3 +46,40 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+
+Previous WIP to kind of "understand it"
+```ruby
+
+require 'mechanize'
+URL_BASE = 'https://www.ttbonline.gov/colasonline'
+# https://www.ttbonline.gov/colasonline/viewColaDetails.do?action=publicDisplaySearchBasic&ttbid=15344001000244
+@agent = Mechanize.new do |agent|
+  agent.user_agent = Mechanize::AGENT_ALIASES.keys.sample
+end
+
+@page = @agent.get "#{URL_BASE}/publicSearchColasBasicProcess.do"
+
+@form = @page.form_with :name => 'searchCriteriaForm'
+
+form_data = {
+  'searchCriteria.dateCompletedFrom'     => '03/14/2017',  
+  'searchCriteria.dateCompletedTo'       => '03/14/2017',
+  'searchCriteria.productOrFancifulName' => '%',
+  'searchCriteria.classTypeFrom'         => '901',
+  'searchCriteria.classTypeTo'           => '956',
+  'searchCriteria.originCode'            => '%'
+}
+
+@form['searchCriteria.dateCompletedFrom']     = form_data['searchCriteria.dateCompletedFrom']
+@form['searchCriteria.dateCompletedTo']       = form_data['searchCriteria.dateCompletedTo']
+@form['searchCriteria.productOrFancifulName'] = form_data['searchCriteria.productOrFancifulName']
+@form['searchCriteria.classTypeFrom']         = form_data['searchCriteria.classTypeFrom']
+@form['searchCriteria.classTypeTo']           = form_data['searchCriteria.classTypeTo']
+@form['searchCriteria.originCode']            = form_data['searchCriteria.originCode']
+
+@results_page = @form.submit
+
+@file = @agent.get("#{URL_BASE}/publicSaveSearchResultsToFile.do?path=/publicSearchColasBasicProcess")
+@file.save
+
+```
