@@ -40,7 +40,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/cola_ttb.
+Bug reports and pull requests are welcome on GitHub at https://github.com/zacscodingclub/cola_ttb.
 
 
 ## License
@@ -81,5 +81,9 @@ form_data = {
 
 @file = @agent.get("#{URL_BASE}/publicSaveSearchResultsToFile.do?path=/publicSearchColasBasicProcess")
 @file.save
+
+file_lines = Dir["./tmp/*.csv"].map do |file|
+  `wc -l "#{file}"`.strip.split(' ')[0].to_i
+end
 
 ```
