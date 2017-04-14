@@ -23,14 +23,16 @@ Or install it yourself as:
 TODO: Write usage instructions here
 
 ## TODO
-1. Complete basic file setup
-2. Build scraper
-  * Build search and send request (https://www.ttbonline.gov/colasonline/publicSearchColasBasic.do)
-  * Download search CSV
+1. ~~Complete basic file setup~~
+2. ~~Build scraper~~
+  * ~~Build search and send request~~ (https://www.ttbonline.gov/colasonline/publicSearchColasBasic.do)
+  * ~~Download search CSV~~
+3. Handle downloaded CSVs
   * Parse CSV
   * Scrape each beverage information (https://www.ttbonline.gov/colasonline/viewColaDetails.do?action=publicFormDisplay&ttbid=17032001000566)
-  *
-3.
+  * Build new CSV based on individual product scrapes
+    * This will be final product ingested by Rails app
+
 
 ## Development
 
@@ -81,6 +83,10 @@ form_data = {
 
 @file = @agent.get("#{URL_BASE}/publicSaveSearchResultsToFile.do?path=/publicSearchColasBasicProcess")
 @file.save
+
+1.upto(7) do |n|
+  ColaTTB::Scraper.call(Date.today - n)
+end
 
 file_lines = Dir["./tmp/*.csv"].map do |file|
   `wc -l "#{file}"`.strip.split(' ')[0].to_i
