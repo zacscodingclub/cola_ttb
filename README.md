@@ -33,6 +33,9 @@ TODO: Write usage instructions here
   * Build new CSV based on individual product scrapes
     * This will be final product ingested by Rails app
 
+```ruby
+@beer = Struct.new(brand_name: , fanciful_name: )
+```
 
 ## Development
 
