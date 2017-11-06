@@ -6,21 +6,21 @@ require "pry"
 module ColaTTB
   class Scraper
     class << self
-      BASE_URL           = "https://www.ttbonline.gov/colasonline"
-      SEARCH_URL         = "/publicSearchColasBasic.do"
-      CSV_URL            = "/publicSaveSearchResultsToFile.do?path=/publicSearchColasBasicProcess"
-      BEVERAGE_PRINT_URL = "/viewColaDetails.do?action=publicFormDisplay&ttbid="
+      BASE_URL           = "https://www.ttbonline.gov"
+      SEARCH_URL         = "/colasonline/publicSearchColasBasic.do"
+      CSV_URL            = "/colasonline/publicSaveSearchResultsToFile.do?path=/publicSearchColasBasicProcess"
+      BEVERAGE_URL       = "?action=publicDisplaySearchBasic&ttbid="
+      BEVERAGE_PRINT_URL = "/colasonline/viewColaDetails.do?action=publicFormDisplay&ttbid="
 
-      def scrape_by_date(date = Date.today)
+      def scrape_by_date(today = Date.today)
         agent          = mechanize_setup
-        today          = date
         formatted_date = today.strftime("%m/%d/%Y")
 
         page = agent.get(BASE_URL + SEARCH_URL)
         form = page.form_with :name => 'searchCriteriaForm'
 
-        form['searchCriteria.dateCompletedFrom']     = search_criteria[:dateCompletedFrom]
-        form['searchCriteria.dateCompletedTo']       = search_criteria[:dateCompletedTo]
+        form['searchCriteria.dateCompletedFrom']     = formatted_date
+        form['searchCriteria.dateCompletedTo']       = formatted_date
         form['searchCriteria.productOrFancifulName'] = search_criteria[:productOrFancifulName]
         form['searchCriteria.productNameSearchType'] = search_criteria[:productNameSearchType]
         form['searchCriteria.classTypeFrom']         = search_criteria[:classTypeFrom]
@@ -28,8 +28,8 @@ module ColaTTB
         form['searchCriteria.originCode']            = search_criteria[:originCode]
 
         results_page = form.submit
-
         file = agent.get(BASE_URL + CSV_URL)
+        return if file.body.size < 100
         file.save("./tmp/date/#{today.strftime("%Y_%m_%d")}.csv")
       end
 
@@ -46,26 +46,45 @@ module ColaTTB
       def scrape_by_ttd_id(id)
         # input id
         # output Application struct
-        binding.pry
-        agent = mechanize_setup
+        #     17298001000631
+        # COLAs Online will now only accept JPEG type
+        # images (.jpg, .jpeg, .jpe). Trying to upload a TIFF type image will result in an error.
+        # .split(/.jpg|.jpeg|.jpe/)
+        begin
+          agent = mechanize_setup
+          page = agent.get(BASE_URL + BEVERAGE_PRINT_URL + id.to_s)
 
-        file = agent.get(BASE_URL + BEVERAGE_PRINT_URL + id.to_s)
-        build_application_struct(file)
+          images = page.search("img")
+          images.each do |img|
+            if img.attributes["alt"].nil?
+              puts "No alt text for image #{img.attributes["src"].value}"
+              next
+            end
+            image_attrs = parse_image_download_path(img.attributes["src"].value)
+            puts "Downloading #{image_attrs[:filename]}"
+            i = agent.get(BASE_URL + image_attrs[:path])
+            i.save("./tmp/img/#{id}_#{image_attrs[:filename]}")
+          end
+
+          build_application_struct(page)
+        rescue Exception => e
+          puts "Error downloading TTD ID #{id}"
+        ensure
+          agent.shutdown
+        end
       end
 
       private
 
       def mechanize_setup
-        mech = Mechanize.new
-        mech.user_agent = Mechanize::AGENT_ALIASES.keys.sample
-        mech.html_parser = Nokogiri::XML
-        mech
+        Mechanize.new do |agent|
+          agent.user_agent = Mechanize::AGENT_ALIASES.keys.sample
+          agent.html_parser = Nokogiri::XML
+        end
       end
 
       def search_criteria
         {
-          :dateCompletedFrom     => formatted_date,
-          :dateCompletedTo       => formatted_date,
           :productOrFancifulName => "%",
           :productNameSearchType => "E",
           :classTypeFrom         => 901,
@@ -74,7 +93,17 @@ module ColaTTB
         }
       end
 
+      def parse_image_download_path(uri)
+        p = URI::encode(uri.gsub("=l", "&filetype=l"))
+        fn = uri.split("filename=")[1].split("=")[0]
+        {
+          path: p,
+          filename: fn
+        }
+      end
+
       def build_application_struct(file)
+        puts file
         # Struct.new(
         #   ttb_id: file.css('.data+ table .data').text,
         #   date_of_application: file.css('table .boldlabel').at("div:contains('16.')").next_element.text,
@@ -107,6 +136,7 @@ module ColaTTB
 
       def get_application_type(file)
         elements = file.css('.label').at("div:contains('14. ')").next_element.children[1]
+        inputs = elements.css('input')
       end
     end
   end

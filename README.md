@@ -87,8 +87,9 @@ form_data = {
 @file = @agent.get("#{URL_BASE}/publicSaveSearchResultsToFile.do?path=/publicSearchColasBasicProcess")
 @file.save
 
-1.upto(7) do |n|
-  ColaTTB::Scraper.call(Date.today - n)
+30.upto(100) do |n|
+  ColaTTB::Scraper.scrape_by_date(Date.today - n)
+  sleep(rand(5))
 end
 
 file_lines = Dir["./tmp/*.csv"].map do |file|
